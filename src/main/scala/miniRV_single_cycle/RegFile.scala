@@ -9,7 +9,7 @@ import _root_.circt.stage.ChiselStage
 class RegFileIO extends Bundle {
   val regFileWe = Input(Bool()) // the write enable of RegFile
   val wD = Input(UInt(DATA_WIDTH.W))
-  val regNum = Flipped(new BundleReg) // the number of rs1 , rs2 and rd
+  val regNum = Flipped(new RegNum) // the number of rs1 , rs2 and rd
   val rR1 = Output(UInt(DATA_WIDTH.W))
   val rR2 = Output(UInt(DATA_WIDTH.W))
 }

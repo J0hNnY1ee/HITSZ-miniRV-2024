@@ -345,4 +345,4 @@ hs_err_pid*
 .vscode/
 .metals/
 out/
-.scallafmt.conf
+.scalafmt.conf

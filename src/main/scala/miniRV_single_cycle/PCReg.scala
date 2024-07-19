@@ -9,13 +9,13 @@ class PCRegIO extends Bundle {
   val pcAdd4 = Output(UInt(ADDR_WIDTH.W))
   val isJump = Input(Bool()) // if inst = jal or jalr
   val isBranch = Input(Bool()) // if inst  = branch
-  val resultBranch = Input(Bool()) // the branch result
+  val resultBr = Input(Bool()) // the branch result
   val addrTarget = Input(UInt(ADDR_WIDTH.W)) // the addr goto
 }
 class PCReg extends Module {
   val io = IO(new PCRegIO())
   val regPC = RegInit(UInt(ADDR_WIDTH.W), START_ADDR.U) // PC从0开始
-  when(io.isJump || (io.isBranch && io.resultBranch)) // 跳转或者分支
+  when(io.isJump || (io.isBranch && io.resultBr)) // 跳转或者分支
   {
     regPC := io.addrTarget
   }.otherwise {
