@@ -25,7 +25,7 @@ class PCReg extends Module {
   io.pcAdd4 := regPC + 4.U
 }
 
-object mypc extends App {
+object myPc extends App {
   println(
     ChiselStage.emitSystemVerilog(
       new PCReg,

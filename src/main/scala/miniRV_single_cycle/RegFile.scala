@@ -34,7 +34,7 @@ class RegFile extends Module {
   }
 }
 
-object myrf extends App {
+object myRf extends App {
   println(
     ChiselStage.emitSystemVerilog(
       new RegFile,

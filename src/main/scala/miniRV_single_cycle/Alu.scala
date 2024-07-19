@@ -30,11 +30,11 @@ class Alu extends Module {
   B := Mux(io.aluctl.aluASel, io.imm, io.rR2)
 
   switch(io.aluctl.op) {
-    is(OP_NOP) { // 啥也不干
+    is(OP_NOP) { 
       resultC := 0.U
       resultBr := false.B
     }
-    is(OP_ADD) {
+    is(OP_ADD) { // not only add
       resultC := A +& B
     }
     is(OP_SUB) {
@@ -55,7 +55,7 @@ class Alu extends Module {
     is(OP_SRL) {
       resultC := A >> B(4, 0)
     }
-    is(OP_SRA) { // 需要注意算术右移的写法
+    is(OP_SRA) { 
       resultC := (A.asSInt >> B(4, 0)).asUInt
     }
     is(OP_EQ) {
@@ -74,7 +74,7 @@ class Alu extends Module {
                     resultBr := A < B
                 }
                 resultC := io.pc +& io.imm // the branch addr
-            }.otherwise {
+            }.otherwise { // slt and sltu
                 when(io.aluctl.isSigned) {
                     resultC := A.asSInt < B.asSInt
                 }.otherwise {
@@ -94,4 +94,12 @@ class Alu extends Module {
 
   io.resultC := resultC
   io.resultBr := resultBr
+}
+object myAlu extends App {
+  println(
+    ChiselStage.emitSystemVerilog(
+      new Alu,
+      firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
+    )
+  )
 }
