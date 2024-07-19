@@ -20,7 +20,7 @@ object Configs {
     val DATA_BYTE_WIDTH_LOG = ceil(log(DATA_BYTE_WIDTH) / log(2)).toInt // 数据地址对齐的偏移量
     val MEM_DATA_SIZE = 1024 // 数据内存大小
 
-    val START_ADDR: Long = 0x00000084  // 起始执行地址
+    val START_ADDR: Long = 0x00000000  // 起始执行地址
 
     val REG_NUMS = 32   // 寄存器数量
     val REG_NUMS_LOG = ceil(log(REG_NUMS) / log(2)).toInt   // 寄存器号位数
