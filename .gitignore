@@ -341,8 +341,8 @@ hs_err_pid*
 
 
 
-.bloop/
-.vscode/
-.metals/
-out/
-.scallafmt.conf
+# .bloop/
+# .vscode/
+# .metals/
+# out/
+# .scallafmt.conf
