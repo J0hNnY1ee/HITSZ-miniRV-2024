@@ -7,9 +7,9 @@ import scalalib._
 // support BSP
 import mill.bsp._
 
-object HITSZ-miniRV-2024 extends SbtModule { m =>
+object miniRV extends SbtModule { m =>
   override def millSourcePath = os.pwd
-  override def scalaVersion = "2.13.12"
+  override def scalaVersion = "2.13.14"
   override def scalacOptions = Seq(
     "-language:reflectiveCalls",
     "-deprecation",
@@ -17,14 +17,15 @@ object HITSZ-miniRV-2024 extends SbtModule { m =>
     "-Xcheckinit",
   )
   override def ivyDeps = Agg(
-    ivy"org.chipsalliance::chisel:6.2.0",
+    ivy"org.chipsalliance::chisel:6.5.0",
   )
   override def scalacPluginIvyDeps = Agg(
-    ivy"org.chipsalliance:::chisel-plugin:6.2.0",
+    ivy"org.chipsalliance:::chisel-plugin:6.5.0",
   )
   object test extends SbtModuleTests with TestModule.ScalaTest {
     override def ivyDeps = m.ivyDeps() ++ Agg(
-      ivy"org.scalatest::scalatest::3.2.16"
+      ivy"org.scalatest::scalatest::3.2.19",
+      ivy"edu.berkeley.cs::chiseltest:6.0.0"
     )
   }
 }
