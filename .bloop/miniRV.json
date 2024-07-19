@@ -110,7 +110,7 @@
                 ]
             },
             "mainClass": [
-                "miniRV.cpu"
+                "miniRV_single_cycle.cpu"
             ],
             "classpath": [
                 "/home/j0hnny/.cache/coursier/v1/https/repo.huaweicloud.com/repository/maven/org/chipsalliance/chisel_2.13/6.5.0/chisel_2.13-6.5.0.jar",
