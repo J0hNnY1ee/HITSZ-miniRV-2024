@@ -20,10 +20,10 @@ class ControlSinal extends Bundle {
 }
 
 
-class BundleMemDataControl extends Bundle {
-    val ctrlLoad = Input(Bool())
-    val ctrlStore = Input(Bool())
-    val ctrlSigned = Input(Bool())
+class DataMemControl extends Bundle {
+    val isLoad = Input(Bool())
+    val isStore = Input(Bool())
+    val isSigned = Input(Bool())
     val ctrlLSType = Input(UInt(LS_TYPE_WIDTH.W))
 }
 class Alu_Control extends Bundle {

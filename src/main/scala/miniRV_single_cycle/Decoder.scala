@@ -7,6 +7,7 @@ import config.Configs._
 import utils.OP_TYPES._
 import utils.LS_TYPES._
 import utils._
+import _root_.circt.stage.ChiselStage
 
 class DecoderIO extends Bundle {
   val inst = Input(UInt(INST_WIDTH.W))
@@ -257,4 +258,14 @@ class Decoder extends Module {
   io.ctl.isStore := isStore
   io.ctl.ctrlLSType := ctrlLSType
   io.imm := imm
+}
+
+
+object myDe extends App {
+  println(
+    ChiselStage.emitSystemVerilog(
+      new Decoder,
+      firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
+    )
+  )
 }

@@ -31,3 +31,6 @@ object Configs {
     val Trace_test = 1.B
 }
 
+object test extends  App {
+}
+
