@@ -6,26 +6,19 @@ import config.Configs._
 import utils.OP_TYPES._
 import utils.LS_TYPES._
 
-class BundleControl extends Bundle {
-    val ctrlJump = Output(Bool())
-    val ctrlBranch = Output(Bool())
-    val ctrlRegWrite = Output(Bool())
-    val ctrlLoad = Output(Bool())
-    val ctrlStore = Output(Bool())
-    val ctrlALUSrc = Output(Bool())
-    val ctrlJAL = Output(Bool())
-    val ctrlALU_OP = Output(UInt(OP_TYPES_WIDTH.W))
-    val ctrlSigned = Output(Bool())
+class ControlSinal extends Bundle {
+    val isJump = Output(Bool())
+    val isBranch = Output(Bool())
+    val isRegWrite = Output(Bool())
+    val isLoad = Output(Bool())
+    val isStore = Output(Bool())
+    val isSext = Output(Bool())
+    val isJAL = Output(Bool())
+    val OP = Output(UInt(OP_TYPES_WIDTH.W))
+    val isSigned = Output(Bool())
     val ctrlLSType = Output(UInt(LS_TYPE_WIDTH.W))
 }
 
-// class BundleAluControl extends Bundle {
-//     val ctrlALUSrc = Input(Bool())
-//     val ctrlJAL = Input(Bool())
-//     val ctrlOP = Input(UInt(OP_TYPES_WIDTH.W))
-//     val ctrlSigned = Input(Bool())
-//     val ctrlBranch = Input(Bool())
-// }
 
 class BundleMemDataControl extends Bundle {
     val ctrlLoad = Input(Bool())
@@ -34,8 +27,8 @@ class BundleMemDataControl extends Bundle {
     val ctrlLSType = Input(UInt(LS_TYPE_WIDTH.W))
 }
 class Alu_Control extends Bundle {
-    val aluASel = Input(Bool()) // jal select pc
-    val aluBSel = Input(Bool()) // imm and rR2
+    val isJAL = Input(Bool()) // jal select pc
+    val isSext = Input(Bool()) // imm and rR2
     val op  = Input(UInt(OP_TYPES_WIDTH.W))
     val isSigned = Input(Bool())// unsigned or signed
     val isBranch = Input(Bool())//to distinguish slt and branch

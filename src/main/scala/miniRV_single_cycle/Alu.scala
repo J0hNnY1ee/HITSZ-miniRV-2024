@@ -26,8 +26,8 @@ class Alu extends Module {
   val B = WireDefault(0.U(DATA_WIDTH.W))
 
   // Select data
-  A := Mux(io.aluctl.aluASel, io.pc, io.rR1)
-  B := Mux(io.aluctl.aluASel, io.imm, io.rR2)
+  A := Mux(io.aluctl.isJAL, io.pc, io.rR1)
+  B := Mux(io.aluctl.isSext, io.imm, io.rR2)
 
   switch(io.aluctl.op) {
     is(OP_NOP) { 

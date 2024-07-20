@@ -24,5 +24,10 @@ object Configs {
 
     val REG_NUMS = 32   // 寄存器数量
     val REG_NUMS_LOG = ceil(log(REG_NUMS) / log(2)).toInt   // 寄存器号位数
+
+
+
+    
+    val Trace_test = 1.B
 }
 
