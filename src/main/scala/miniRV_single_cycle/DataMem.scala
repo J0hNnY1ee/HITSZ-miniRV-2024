@@ -16,7 +16,7 @@ class DataMemIO extends Bundle {
 
 class DataMem extends Module {
   val io = IO(new DataMemIO())
-
+  val offset = io.addr(1, 0) // the addr is not alignment
   val dram = Module(new DRAM)
   dram.io.clk := clock
   dram.io.a := io.addr >> DATA_BYTE_WIDTH_LOG.U
@@ -33,10 +33,23 @@ class DataMem extends Module {
     we := true.B
     when(io.ctl.ctrlLSType === LS_W) { // 修改全部4字节
       d := io.dataStore
-    }.elsewhen(io.ctl.ctrlLSType === LS_H) { // 修改低2字节
-      d := Cat(dataLoadBeforeProcess(31, 16), io.dataStore(15, 0))
-    }.otherwise { // 修改最低一个字节
-      d := Cat(dataLoadBeforeProcess(31, 8), io.dataStore(7, 0))
+    }.elsewhen(io.ctl.ctrlLSType === LS_H) { // 修改2字节
+      when(offset === 0.U) {
+        d := Cat(dataLoadBeforeProcess(31, 16), io.dataStore(15, 0))
+      }
+        .otherwise {
+          d := Cat(io.dataStore(15, 0), dataLoadBeforeProcess(15, 0))
+        }
+    }.otherwise { // 修改一个字节
+      when(offset === 0.U) {
+        d := Cat(dataLoadBeforeProcess(31, 8), io.dataStore(7, 0))
+      }.elsewhen(offset === 1.U) {
+        d := Cat(dataLoadBeforeProcess(31, 16), io.dataStore(7, 0),dataLoadBeforeProcess(7,0))
+      }.elsewhen(offset === 2.U) {
+        d := Cat(dataLoadBeforeProcess(31, 24), io.dataStore(7, 0),dataLoadBeforeProcess(15,0))
+      }.otherwise {
+        d := Cat( io.dataStore(7, 0),dataLoadBeforeProcess(23, 0))
+      }
     }
   }
 
@@ -44,17 +57,81 @@ class DataMem extends Module {
   when(io.ctl.isLoad) {
     when(io.ctl.ctrlLSType === LS_W) {
       dataLoad := dataLoadBeforeProcess // word
-    }.elsewhen(io.ctl.ctrlLSType === LS_H) {
-      when(io.ctl.isSigned) {
-        dataLoad := Cat(Fill(ADDR_WIDTH - 16, dataLoadBeforeProcess(15)), dataLoadBeforeProcess(15, 0)) // half word
+    }.elsewhen(io.ctl.ctrlLSType === LS_H) { // lh
+      when(offset === 0.U) {
+        when(io.ctl.isSigned) {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 16, dataLoadBeforeProcess(15)),
+            dataLoadBeforeProcess(15, 0)
+          ) // half word
+        }.otherwise {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 16, 0.U),
+            dataLoadBeforeProcess(15, 0)
+          )
+        }
       }.otherwise {
-        dataLoad := Cat(Fill(ADDR_WIDTH - 16, 0.U), dataLoadBeforeProcess(15, 0))
+        when(io.ctl.isSigned) {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 16, dataLoadBeforeProcess(31)),
+            dataLoadBeforeProcess(31, 16)
+          ) // half word
+        }.otherwise {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 16, 0.U),
+            dataLoadBeforeProcess(31, 16)
+          )
+        }
       }
     }.otherwise {
-      when(io.ctl.isSigned) {
-        dataLoad := Cat(Fill(ADDR_WIDTH - 8, dataLoadBeforeProcess(7)), dataLoadBeforeProcess(7, 0)) // byte
+      when(offset === 0.U) {
+        when(io.ctl.isSigned) {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 8, dataLoadBeforeProcess(7)),
+            dataLoadBeforeProcess(7, 0)
+          ) // byte
+        }.otherwise {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 8, 0.U),
+            dataLoadBeforeProcess(7, 0)
+          )
+        }
+      }.elsewhen(offset === 1.U) {
+        when(io.ctl.isSigned) {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 8, dataLoadBeforeProcess(15)),
+            dataLoadBeforeProcess(15, 8)
+          ) // byte
+        }.otherwise {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 8, 0.U),
+            dataLoadBeforeProcess(15, 8)
+          )
+        }
+      }.elsewhen(offset === 2.U) {
+        when(io.ctl.isSigned) {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 8, dataLoadBeforeProcess(23)),
+            dataLoadBeforeProcess(23, 16)
+          ) // byte
+        }.otherwise {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 8, 0.U),
+            dataLoadBeforeProcess(23, 16)
+          )
+        }
       }.otherwise {
-        dataLoad := Cat(Fill(ADDR_WIDTH - 8, 0.U), dataLoadBeforeProcess(7, 0))
+        when(io.ctl.isSigned) {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 8, dataLoadBeforeProcess(31)),
+            dataLoadBeforeProcess(31, 24)
+          ) // byte
+        }.otherwise {
+          dataLoad := Cat(
+            Fill(ADDR_WIDTH - 8, 0.U),
+            dataLoadBeforeProcess(31, 24)
+          )
+        }
       }
     }
   }
@@ -64,7 +141,7 @@ class DataMem extends Module {
 }
 
 object myDataMem extends App {
-    println(
+  println(
     ChiselStage.emitSystemVerilog(
       new DataMem,
       firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")

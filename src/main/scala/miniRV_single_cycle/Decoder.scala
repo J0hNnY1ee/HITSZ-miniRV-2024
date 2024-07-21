@@ -48,6 +48,7 @@ class Decoder extends Module {
   val imm_shift = Cat(Fill(27, 0.U), io.inst(24, 20))
 
 // the ctrl sinals
+  val isLui = WireDefault(false.B)
   val isJump = WireDefault(false.B)
   val isBranch = WireDefault(false.B)
   val isRegWrite = WireDefault(true.B)
@@ -55,16 +56,22 @@ class Decoder extends Module {
   val isStore = WireDefault(false.B)
   val isSext = WireDefault(false.B)
   val isJAL = WireDefault(false.B)
-  val OP = WireDefault(0.U(OP_TYPES_WIDTH.W))
+  val op = WireDefault(0.U(OP_TYPES_WIDTH.W))
   val isSigned = WireDefault(true.B)
   val ctrlLSType = WireDefault(LS_W) // MemLength
 
   switch(io.inst(6, 2)) // last 2 digits always 0
   {
-    // U: LUI, AUIPC
-    is("b01101".U, "b00101".U) {
+    // U: AUIPC
+    is("b00101".U) {
       isSext := true.B
-      OP := OP_ADD
+      isJAL := true.B // set the alua = pc
+      op := OP_ADD
+      imm := imm_u
+    }
+    // LUI
+    is("b01101".U) {
+      isLui := true.B
       imm := imm_u
     }
     // J: JAL
@@ -72,6 +79,7 @@ class Decoder extends Module {
       isSext := true.B
       isJump := true.B
       isJAL := true.B
+      op := OP_ADD
       imm := imm_j
     }
     // I: JALR,
@@ -83,13 +91,13 @@ class Decoder extends Module {
       // JALR
       when(io.inst(6, 2) === "b11001".U) {
         isJump := true.B
-        OP := OP_ADD
+        op := OP_ADD
       }
 
         // LOAD
         .elsewhen(io.inst(6, 2) === "b00000".U) {
           isLoad := true.B
-          OP := OP_ADD
+          op := OP_ADD
           when(io.inst(14, 12) === "b100".U | io.inst(14, 12) === "b101".U) {
             isSigned := false.B
           }
@@ -100,7 +108,7 @@ class Decoder extends Module {
             ctrlLSType := LS_H
           }
         }
-        // AL
+        // Shift
         .elsewhen(
           io.inst(6, 2) === "b00100".U && (io.inst(14, 12) === "b001".U || io
             .inst(14, 12) === "b101".U)
@@ -109,15 +117,15 @@ class Decoder extends Module {
           switch(Cat(io.inst(30), io.inst(14, 12))) {
             // SLLI
             is("b0001".U) {
-              OP := OP_SLL
+              op := OP_SLL
             }
             // SRLI
             is("b0101".U) {
-              OP := OP_SRL
+              op := OP_SRL
             }
             // SRAI
             is("b1101".U) {
-              OP := OP_SRA
+              op := OP_SRA
             }
           }
         }
@@ -125,28 +133,28 @@ class Decoder extends Module {
           switch(io.inst(14, 12)) {
             // ADDI
             is("b000".U) {
-              OP := OP_ADD
+              op := OP_ADD
             }
             // SLTI
             is("b010".U) {
-              OP := OP_LT
+              op := OP_LT
             }
             // SLTIU
             is("b011".U) {
-              OP := OP_LT
+              op := OP_LT
               isSigned := false.B
             }
             // XORI
             is("b100".U) {
-              OP := OP_XOR
+              op := OP_XOR
             }
             // ORI
             is("b110".U) {
-              OP := OP_OR
+              op := OP_OR
             }
             // ANDI
             is("b111".U) {
-              OP := OP_AND
+              op := OP_AND
             }
           }
         }
@@ -160,28 +168,28 @@ class Decoder extends Module {
       switch(io.inst(14, 12)) {
         // BEQ
         is("b000".U) {
-          OP := OP_EQ
+          op := OP_EQ
         }
         // BNE
         is("b001".U) {
-          OP := OP_NEQ
+          op := OP_NEQ
         }
         // BLT
         is("b100".U) {
-          OP := OP_LT
+          op := OP_LT
         }
         // BGE
         is("b101".U) {
-          OP := OP_GE
+          op := OP_GE
         }
         // BLTU
         is("b110".U) {
-          OP := OP_LT
+          op := OP_LT
           isSigned := false.B
         }
         // BGEU
         is("b111".U) {
-          OP := OP_GE
+          op := OP_GE
           isSigned := false.B
         }
       }
@@ -191,7 +199,7 @@ class Decoder extends Module {
       isSext := true.B
       isStore := true.B
       isRegWrite := false.B
-      OP := OP_ADD
+      op := OP_ADD
       imm := imm_s
       when(io.inst(14, 12) === "b000".U) {
         ctrlLSType := LS_B
@@ -206,60 +214,60 @@ class Decoder extends Module {
         // ADD, SUB
         is("b000".U) {
           when(io.inst(30)) {
-            OP := OP_SUB
+            op := OP_SUB
           }.otherwise {
-            OP := OP_ADD
+            op := OP_ADD
           }
         }
         // SLL
         is("b001".U) {
-          OP := OP_SLL
+          op := OP_SLL
         }
         // SLT
         is("b010".U) {
-          OP := OP_LT
+          op := OP_LT
         }
         // SLTU
         is("b011".U) {
-          OP := OP_LT
-          OP := false.B
+          op := OP_LT
+          isSigned := false.B
         }
         // XOR
         is("b100".U) {
-          OP := OP_XOR
+          op := OP_XOR
         }
         // SRL, SRA
         is("b101".U) {
           when(io.inst(30)) {
-            OP := OP_SRA
+            op := OP_SRA
           }.otherwise {
-            OP := OP_SRL
+            op := OP_SRL
           }
         }
         // OR
         is("b110".U) {
-          OP := OP_OR
+          op := OP_OR
         }
         // AND
         is("b111".U) {
-          OP := OP_AND
+          op := OP_AND
         }
       }
     }
   }
+  io.ctl.isLui := isLui
   io.ctl.isSext := isSext
   io.ctl.isBranch := isBranch
   io.ctl.isJAL := isJAL
   io.ctl.isJump := isJump
   io.ctl.isLoad := isLoad
-  io.ctl.OP := OP
+  io.ctl.op := op
   io.ctl.isRegWrite := isRegWrite
   io.ctl.isSigned := isSigned
   io.ctl.isStore := isStore
   io.ctl.ctrlLSType := ctrlLSType
   io.imm := imm
 }
-
 
 object myDe extends App {
   println(

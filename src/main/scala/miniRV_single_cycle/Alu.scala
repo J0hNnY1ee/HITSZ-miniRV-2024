@@ -8,7 +8,7 @@ import utils._
 import utils.OP_TYPES._
 
 class AluIO extends Bundle {
-  val aluctl = new Alu_Control()
+  val aluctl = new AluControl()
   val rR1 = Input(UInt(DATA_WIDTH.W))
   val rR2 = Input(UInt(DATA_WIDTH.W))
   val imm = Input(UInt(DATA_WIDTH.W))
@@ -21,7 +21,6 @@ class Alu extends Module {
 
   val resultBr = WireDefault(false.B)
   val resultC = WireDefault(0.U(DATA_WIDTH.W))
-
   val A = WireDefault(0.U(DATA_WIDTH.W))
   val B = WireDefault(0.U(DATA_WIDTH.W))
 

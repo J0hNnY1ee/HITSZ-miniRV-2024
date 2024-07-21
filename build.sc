@@ -28,5 +28,5 @@ object miniRV extends SbtModule { m =>
       ivy"edu.berkeley.cs::chiseltest:6.0.0"
     )
   }
-  def mainClass = Option("miniRV_single_cycle.cpu")
+  def mainClass = Option("miniRV_single_cycle.mycpu")
 }
