@@ -346,3 +346,4 @@ hs_err_pid*
 .metals/
 out/
 .scalafmt.conf
+*.sv
