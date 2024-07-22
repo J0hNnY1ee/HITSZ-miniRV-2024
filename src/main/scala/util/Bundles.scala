@@ -51,3 +51,15 @@ class TraceDenug extends Bundle {
   val debug_wb_reg = Output(UInt(5.W))
   val debug_wb_value = Output(UInt(DATA_WIDTH.W))
 }
+
+
+class DigLed_DN extends Bundle {
+  val DN_A = Output(Bool())
+  val DN_B = Output(Bool())
+  val DN_C = Output(Bool())
+  val DN_D = Output(Bool())
+  val DN_E = Output(Bool())
+  val DN_F = Output(Bool())
+  val DN_G = Output(Bool())
+  val DN_DP = Output(Bool())
+}
