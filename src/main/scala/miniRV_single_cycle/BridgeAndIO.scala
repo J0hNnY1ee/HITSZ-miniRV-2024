@@ -7,8 +7,108 @@ import _root_.circt.stage.ChiselStage
 import utils.DigLed_DN
 import java.security.Signer
 import upickle.default
+import utils.DataMemControl
+import utils.LS_TYPES.LS_W
 
-class Bridge extends Module {}
+class Bridge extends Module {
+  val io = IO(new Bundle {
+    // interface for cpu
+    val addr_from_cpu = Input(UInt(ADDR_WIDTH.W))
+    val ctl_from_cpu = new DataMemControl()
+    val wD_from_cpu = Input(UInt(DATA_WIDTH.W))
+    val rdata_to_cpu = Output(UInt(DATA_WIDTH.W))
+
+    // Interface to DRAM
+    val addr_to_dram = Output(UInt(ADDR_WIDTH.W))
+    val rdata_from_dram = Input(UInt(DATA_WIDTH.W))
+    val ctl_to_dram = Flipped(new DataMemControl())
+    val wD_to_dram = Output(UInt(DATA_WIDTH.W))
+
+    // Interface to 7-seg digital LEDs
+    val addr_to_dig = Output(UInt(12.W))
+    val we_to_dig = Output(Bool())
+    val wD_to_dig = Output(UInt(DATA_WIDTH.W))
+
+    // Interface to LEDs
+    val addr_to_led = Output(UInt(12.W))
+    val we_to_led = Output(Bool())
+    val wD_to_led = Output(UInt(DATA_WIDTH.W))
+
+    // Interface to switches
+    val rdata_from_sw = Input(UInt(DATA_WIDTH.W))
+    val addr_to_sw = Output(UInt(12.W))
+
+    // Interface to buttons
+    val rdata_from_btn = Input(UInt(32.W))
+    val addr_to_btn = Output(UInt(12.W))
+  })
+  // set access signal
+  val access_mem = WireDefault(0.B)
+  val access_dig = WireDefault(0.B)
+  val access_led = WireDefault(0.B)
+  val access_sw = WireDefault(0.B)
+  val access_btn = WireDefault(0.B)
+
+  access_mem := Mux(io.addr_from_cpu(31, 12) =/= "hfffff".U, 1.B, 0.B)
+  access_dig := Mux(io.addr_from_cpu === "hfffff000".U, 1.B, 0.B)
+  access_led := Mux(io.addr_from_cpu === "hfffff060".U, 1.B, 0.B)
+  access_sw := Mux(io.addr_from_cpu === "hfffff070".U, 1.B, 0.B)
+  access_btn := Mux(io.addr_from_cpu === "hfffff078".U, 1.B, 0.B)
+
+  val access_bit = Wire(UInt(5.W))
+  access_bit := Cat(access_mem, access_dig, access_led, access_sw, access_btn)
+
+  // dram
+  io.addr_to_dram := io.addr_from_cpu
+  // io.ctl_to_dram := Mux(access_mem,io.ctl_from_cpu,)
+  when(access_mem) {
+    io.ctl_to_dram := io.ctl_from_cpu
+  }.otherwise {
+    io.ctl_to_dram.ctrlLSType := LS_W
+    io.ctl_to_dram.isLoad := false.B
+    io.ctl_to_dram.isSigned := true.B
+    io.ctl_to_dram.isStore := false.B
+  }
+  io.wD_to_dram := io.wD_from_cpu
+
+  // 7-seg
+  io.addr_to_dig := io.addr_from_cpu(11, 0)
+  io.we_to_dig := io.ctl_from_cpu.isStore & access_dig
+  io.wD_to_dig := io.wD_from_cpu
+
+  // leds
+  io.addr_to_led := io.addr_from_cpu(11, 0)
+  io.we_to_led := io.ctl_from_cpu.isStore & access_led
+  io.wD_to_led := io.wD_from_cpu
+
+  // switch
+  io.addr_to_sw := io.addr_from_cpu(11, 0)
+
+  // button
+  io.addr_to_btn := io.addr_from_cpu(11, 0)
+
+  io.rdata_to_cpu := "hffffffff".U
+  switch(access_bit) {
+    is("b00010".U) {
+      io.rdata_to_cpu := io.rdata_from_sw
+    }
+    is("b00001".U) {
+      io.rdata_to_cpu := io.rdata_from_btn
+    }
+  }
+  when(access_bit(4) === 1.U) {
+    io.rdata_to_cpu := io.rdata_from_dram
+  }
+}
+object myBridge extends App {
+  println(
+    ChiselStage.emitSystemVerilog(
+      new Bridge,
+      firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
+    )
+  )
+}
+
 class button extends Module {
   val io = IO(new Bundle {
     val addr = Input(UInt(12.W))
@@ -16,9 +116,12 @@ class button extends Module {
     val dataOut = Output(UInt(DATA_WIDTH.W))
   })
   val dataOut = RegInit(0.U(DATA_WIDTH.W))
-  dataOut := Cat(Fill(27, 0.U), io.button_input)
+  // when(io.addr === "h078".U) {
+    dataOut := Cat(Fill(27, 0.U), io.button_input)
+  // }
   io.dataOut := dataOut
 }
+
 object myButton extends App {
   println(
     ChiselStage.emitSystemVerilog(
@@ -28,15 +131,15 @@ object myButton extends App {
   )
 }
 
-class led extends Module {
+class BoardLed extends Module {
   val io = IO(new Bundle {
-    val addr = Input(UInt(24.W))
+    val addr = Input(UInt(12.W))
     val we = Input(Bool())
     val wD = Input(UInt(32.W))
     val led = Output(UInt(24.W))
   })
   val led = RegInit(0.U(24.W))
-  when(io.we && io.addr === 0x60.U) {
+  when(io.we && io.addr === "h60".U) {
     led := io.wD
   }
   io.led := led
@@ -44,16 +147,15 @@ class led extends Module {
 object myled extends App {
   println(
     ChiselStage.emitSystemVerilog(
-      new led,
+      new BoardLed,
       firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
     )
   )
 }
 
-
 class Digital_LEDs extends Module {
   val io = IO(new Bundle {
-    val addr = Input(UInt(ADDR_WIDTH.W))
+    val addr = Input(UInt(12.W))
     val we = Input(Bool())
     val wD = Input(UInt(DATA_WIDTH.W))
     val dN = new DigLed_DN()
@@ -187,6 +289,28 @@ object mytimer extends App {
   println(
     ChiselStage.emitSystemVerilog(
       new timerForLed(29999.U),
+      firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
+    )
+  )
+}
+
+class switch_onboard extends Module {
+  val io = IO(new Bundle {
+    val addr = Input(UInt(12.W))
+    val sw = Input(UInt(24.W))
+    val rdata = Output(UInt(DATA_WIDTH.W))
+  })
+  val rdata = WireDefault(0.U(DATA_WIDTH.W))
+  when(io.addr === "hfffff070".U) {
+    rdata := Cat(Fill(8, 0.U), io.sw)
+  }
+  io.rdata := rdata
+}
+
+object mysw extends App {
+  println(
+    ChiselStage.emitSystemVerilog(
+      new switch_onboard,
       firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
     )
   )
