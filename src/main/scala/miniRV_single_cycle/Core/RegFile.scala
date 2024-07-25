@@ -1,4 +1,4 @@
-package miniRV_single_cycle
+package miniRV_single_cycle.Core
 
 import chisel3._
 import chisel3.util._

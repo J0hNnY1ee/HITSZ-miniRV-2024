@@ -44,16 +44,10 @@ class RegNum extends Bundle {
   val rs2 = Output(UInt(REG_NUMS_LOG.W))
   val rd = Output(UInt(REG_NUMS_LOG.W))
 }
-class TraceDenug extends Bundle {
-  val debug_wb_have_inst = Output(Bool())
-  val debug_wb_pc = Output(UInt(ADDR_WIDTH.W))
-  val debug_wb_ena = Output(Bool())
-  val debug_wb_reg = Output(UInt(5.W))
-  val debug_wb_value = Output(UInt(DATA_WIDTH.W))
-}
 
 
-class DigLed_DN extends Bundle {
+
+class DigDN extends Bundle {
   val DN_A = Output(Bool())
   val DN_B = Output(Bool())
   val DN_C = Output(Bool())

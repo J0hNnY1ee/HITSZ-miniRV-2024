@@ -1,16 +1,24 @@
-package miniRV_single_cycle
+package miniRV_single_cycle.Core
 
 import chisel3._
 import chisel3.util._
 import _root_.circt.stage.ChiselStage
-import utils.TraceDenug
 import config.Configs.ADDR_WIDTH
 import config.Configs.DATA_WIDTH
-class TopIO extends Bundle {
+import miniRV_single_cycle._
+
+class TraceDenug extends Bundle {
+  val debug_wb_have_inst = Output(Bool())
+  val debug_wb_pc = Output(UInt(ADDR_WIDTH.W))
+  val debug_wb_ena = Output(Bool())
+  val debug_wb_reg = Output(UInt(5.W))
+  val debug_wb_value = Output(UInt(DATA_WIDTH.W))
+}
+class TraceIO extends Bundle {
   val trace = new TraceDenug()
 }
-class CPU extends Module {
-  val io = IO(new TopIO)
+class CPUForTrace extends Module {
+  val io = IO(new TraceIO)
   val pc = Module(new PCReg())
   val im = Module(new InstMem())
   val de = Module(new Decoder())
@@ -81,7 +89,7 @@ class CPU extends Module {
 object mycpu extends App {
   println(
     ChiselStage.emitSystemVerilogFile(
-      new CPU,
+      new CPUForTrace,
       firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
     )
   )
