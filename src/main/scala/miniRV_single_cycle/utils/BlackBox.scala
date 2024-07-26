@@ -1,4 +1,4 @@
-package utils
+package miniRV_single_cycle.utils
 import chisel3._
 import chisel3.util._
 import config.Configs._
@@ -32,6 +32,13 @@ class DRAM extends BlackBox {
       val d = Input(UInt(DATA_WIDTH.W)) // write to dram
     }
   )
+}
+class cpuclk extends BlackBox{
+  val io = IO(new Bundle {
+    val clk_in1 = Input(Clock())
+    val locked = Output(Bool())
+    val clk_out1 = Output(Clock())
+  })
 }
 
 class TestBlackBoxModule extends Module {

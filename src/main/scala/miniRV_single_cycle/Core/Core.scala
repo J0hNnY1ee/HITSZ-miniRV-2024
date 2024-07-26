@@ -5,7 +5,7 @@ import chisel3.util._
 import _root_.circt.stage.ChiselStage
 import config.Configs.ADDR_WIDTH
 import config.Configs.DATA_WIDTH
-import utils.DataMemControl
+import miniRV_single_cycle.utils.DataMemControl
 import miniRV_single_cycle._
 class CPUCoreIO extends Bundle {
 

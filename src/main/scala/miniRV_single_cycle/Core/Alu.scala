@@ -4,8 +4,8 @@ import chisel3._
 import chisel3.util._
 import config.Configs._
 import _root_.circt.stage.ChiselStage
-import utils._
-import utils.OP_TYPES._
+import miniRV_single_cycle.utils._
+import miniRV_single_cycle.utils.OP_TYPES._
 
 class AluIO extends Bundle {
   val aluctl = new AluControl()

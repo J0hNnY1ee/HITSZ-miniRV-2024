@@ -3,7 +3,7 @@ package miniRV_single_cycle.Core
 import chisel3._
 import chisel3.util._
 
-import utils._
+import miniRV_single_cycle.utils._
 
 class ControllerIO extends Bundle {
   val CSIn = Flipped(new ControlSinal()) // from decoder

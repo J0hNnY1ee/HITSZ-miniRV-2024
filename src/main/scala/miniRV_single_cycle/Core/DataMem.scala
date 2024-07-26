@@ -2,11 +2,11 @@ package miniRV_single_cycle.Core
 
 import chisel3._
 import chisel3.util._
-import utils.DRAM
+import miniRV_single_cycle.utils.DRAM
 import config.Configs._
 import _root_.circt.stage.ChiselStage
-import utils.DataMemControl
-import utils.LS_TYPES._
+import miniRV_single_cycle.utils.DataMemControl
+import miniRV_single_cycle.utils.LS_TYPES._
 class DataMemIO extends Bundle {
   val ctl = new DataMemControl()
   val addr = Input(UInt(ADDR_WIDTH.W))

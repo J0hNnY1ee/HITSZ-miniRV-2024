@@ -30,6 +30,7 @@ object Configs {
   val SWITCH_NUMBER = 24
   val LED_NUMBER = 24
   val DIG_LED_NUMBER = 8
+  val BUTTON_NUMBER = 5
 
   val Trace_test = 1.B
   val PERI_ADDR_DIG = "hFFFF_F000".U

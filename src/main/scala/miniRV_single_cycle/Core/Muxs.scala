@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 import config.Configs._
 import _root_.circt.stage.ChiselStage
-import utils.RfWselControl
+import miniRV_single_cycle.utils.RfWselControl
 
 class Rf_Wsel extends Module {
   val io = IO(new Bundle {

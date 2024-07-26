@@ -3,7 +3,7 @@ import chisel3._
 import chisel3.util._
 import _root_.circt.stage.ChiselStage
 import config.Configs._
-import utils._
+import miniRV_single_cycle.utils._
 
 class DigLedIO extends Bundle {
   val we = Input(Bool())
@@ -19,17 +19,30 @@ class DigLed extends Module {
   when(io.we && io.addr === PERI_ADDR_DIG) {
     data := io.wD
   }
-
+  val dis = Module(new DigDisplay)
+  dis.io.data <> data
+  io.dig_en <> dis.io.dig_en
+  io.dig_dN <> dis.io.dig_dN
 }
+
+object myDigLed extends App {
+  println(
+    ChiselStage.emitSystemVerilog(
+      new DigLed,
+      firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
+    )
+  )
+}
+
 
 class DigDisplay extends Module {
   val io = IO(new Bundle {
     val data = Input(UInt(DATA_WIDTH.W))
-    val dig_en = Input(UInt(DIG_LED_NUMBER.W))
+    val dig_en = Output(UInt(DIG_LED_NUMBER.W))
     val dig_dN = new DigDN()
   })
   val dig_en = RegInit("b1111_1110".U(DIG_LED_NUMBER.W))
-  val (cntValue, cntWrap) = Counter(1 until 200000 by 1)
+  val (cntValue, cntWrap) = Counter(1 until 100000 by 1)
   when(cntWrap) {
     dig_en := Cat(dig_en(0), dig_en(7, 1))
   } // refresh
@@ -143,6 +156,5 @@ class DigDisplay extends Module {
   io.dig_dN.DN_F := dig_f
   io.dig_dN.DN_G := dig_g
   io.dig_dN.DN_DP := dig_dp
-
-  switch
+  io.dig_en := dig_en
 }

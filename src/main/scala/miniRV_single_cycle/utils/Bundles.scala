@@ -1,10 +1,10 @@
-package utils
+package miniRV_single_cycle.utils
 
 import chisel3._
 
 import config.Configs._
-import utils.OP_TYPES._
-import utils.LS_TYPES._
+import miniRV_single_cycle.utils.OP_TYPES._
+import miniRV_single_cycle.utils.LS_TYPES._
 
 class ControlSinal extends Bundle {
   val isLui = Output(Bool())

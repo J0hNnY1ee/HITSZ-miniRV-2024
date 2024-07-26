@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 
 import config.Configs._
-import utils._
+import miniRV_single_cycle.utils._
 import _root_.circt.stage.ChiselStage
 class RegFileIO extends Bundle {
   val regFileWe = Input(Bool()) // the write enable of RegFile

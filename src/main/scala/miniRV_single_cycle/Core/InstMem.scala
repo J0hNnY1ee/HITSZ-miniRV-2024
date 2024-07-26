@@ -2,7 +2,7 @@ package miniRV_single_cycle.Core
 
 import chisel3._
 import chisel3.util._
-import utils.IROM
+import miniRV_single_cycle.utils.IROM
 import config.Configs._
 import _root_.circt.stage.ChiselStage
 
