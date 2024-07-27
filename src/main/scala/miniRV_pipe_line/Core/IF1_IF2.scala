@@ -35,11 +35,6 @@ class InstMem extends Module {
 
 
 
-
-
-
-
-
 object myInstMem extends App {
   println(
     ChiselStage.emitSystemVerilog(
