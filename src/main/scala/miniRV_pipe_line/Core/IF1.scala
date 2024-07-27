@@ -29,6 +29,41 @@ class PCReg extends Module {
   io.pc := regPC
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 object myPc extends App {
   println(
     ChiselStage.emitSystemVerilog(
