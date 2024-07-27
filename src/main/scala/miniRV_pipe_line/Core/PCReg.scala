@@ -4,8 +4,6 @@ import chisel3._
 import chisel3.util._
 import config.Configs._
 import _root_.circt.stage.ChiselStage
-
-
 class PCRegIO extends Bundle {
   val pc = Output(UInt(ADDR_WIDTH.W)) // the pc addr to output
   val isJump = Input(Bool()) // if inst = jal or jalr
@@ -28,41 +26,6 @@ class PCReg extends Module {
   }
   io.pc := regPC
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 object myPc extends App {
   println(

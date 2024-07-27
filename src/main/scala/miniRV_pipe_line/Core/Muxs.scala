@@ -34,10 +34,6 @@ class Rf_Wsel extends Module {
   }
   io.wD := wD
 }
-
-
-
-
 object myRf_Wsel extends App {
     println(
     ChiselStage.emitSystemVerilog(

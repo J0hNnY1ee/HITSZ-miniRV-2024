@@ -94,12 +94,6 @@ class Alu extends Module {
   io.resultC := resultC
   io.resultBr := resultBr
 }
-
-
-
-
-
-
 object myAlu extends App {
   println(
     ChiselStage.emitSystemVerilog(
