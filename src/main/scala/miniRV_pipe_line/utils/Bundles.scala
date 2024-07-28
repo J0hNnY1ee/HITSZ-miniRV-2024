@@ -45,8 +45,6 @@ class RegNum extends Bundle {
   val rd = Output(UInt(REG_NUMS_LOG.W))
 }
 
-
-
 class DigDN extends Bundle {
   val DN_A = Output(Bool())
   val DN_B = Output(Bool())
