@@ -11,28 +11,30 @@ class Rf_Wsel extends Module {
     // JAL or JALR
     val pc = Input(UInt(ADDR_WIDTH.W))
     // Load
-    val dataFromRam = Input(UInt(DATA_WIDTH.W))
+    // val dataFromRam = Input(UInt(DATA_WIDTH.W))
     // LUI
     val ctl = new RfWselControl()
     val dataFromSext = Input(UInt(DATA_WIDTH.W))
     // Other
     val AluC = Input(UInt(DATA_WIDTH.W))
-    val wD = Output(UInt(DATA_WIDTH.W))
+    val wD_ex = Output(UInt(DATA_WIDTH.W))
   })
-  val wD = WireDefault(0.U(DATA_WIDTH.W))
+  val wD_ex = WireDefault(0.U(DATA_WIDTH.W))
   when(io.ctl.isJump) {
-    wD := io.pc + INST_BYTE_WIDTH.U
-  }.elsewhen(io.ctl.isLoad)
+    wD_ex := io.pc + INST_BYTE_WIDTH.U
+  }
+  // .elsewhen(io.ctl.isLoad)
+  // {
+  //    wD_ex := io.dataFromRam
+  // }
+  .elsewhen(io.ctl.isLui)
   {
-    wD := io.dataFromRam
-  }.elsewhen(io.ctl.isLui)
-  {
-    wD := io.dataFromSext
+    wD_ex := io.dataFromSext
   }.otherwise
   {
-    wD := io.AluC
+    wD_ex := io.AluC
   }
-  io.wD := wD
+  io.wD_ex := wD_ex
 }
 object myRf_Wsel extends App {
     println(

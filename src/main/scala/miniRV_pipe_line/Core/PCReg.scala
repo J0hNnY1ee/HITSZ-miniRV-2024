@@ -6,23 +6,27 @@ import config.Configs._
 import _root_.circt.stage.ChiselStage
 class PCRegIO extends Bundle {
   val pc = Output(UInt(ADDR_WIDTH.W)) // the pc addr to output
-  val isJump = Input(Bool()) // if inst = jal or jalr
-  val isBranch = Input(Bool()) // if inst  = branch
-  val resultBr = Input(Bool()) // the branch result
+  val pc_we = Input(Bool())
   val addrTarget = Input(UInt(ADDR_WIDTH.W)) // the addr goto
+  val stall = Input(Bool())
   //debug
   // val debug_npc = Output(UInt(ADDR_WIDTH.W))
 }
 class PCReg extends Module {
   val io = IO(new PCRegIO())
   val regPC = RegInit(UInt(ADDR_WIDTH.W), START_ADDR.U) // pc start at START_ADDR
-  when(io.isJump || (io.isBranch && io.resultBr)) // jump or branch
+  val nextPc = Wire(UInt(ADDR_WIDTH.W))
+  when(io.pc_we)// jump or branch
   {
-    regPC := io.addrTarget
+    nextPc := io.addrTarget
     // io.debug_npc := io.addrTarget
   }.otherwise {
-    regPC := regPC + ADDR_BYTE_WIDTH.U // pc = pc + 4
+    nextPc := regPC + ADDR_BYTE_WIDTH.U // pc = pc + 4
     // io.debug_npc := regPC + ADDR_BYTE_WIDTH.U
+  }
+  when(!io.stall)
+  {
+    regPC := nextPc
   }
   io.pc := regPC
 }

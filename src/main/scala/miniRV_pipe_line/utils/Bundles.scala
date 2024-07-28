@@ -36,7 +36,6 @@ class AluControl extends Bundle {
 }
 class RfWselControl extends Bundle {
   val isJump = Input(Bool())
-  val isLoad = Input(Bool())
   val isLui = Input(Bool())
 }
 class RegNum extends Bundle {

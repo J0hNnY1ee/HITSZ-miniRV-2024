@@ -30,7 +30,6 @@ class Controller extends Module {
 
   // rf_wsel
   io.RfWselCtl.isJump := io.CSIn.isJump
-  io.RfWselCtl.isLoad := io.CSIn.isLoad
   io.RfWselCtl.isLui := io.CSIn.isLui
   // others
   io.CSOut <> io.CSIn

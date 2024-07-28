@@ -17,6 +17,7 @@ class EX_LS_IO extends Bundle {
   val resultC_ex = Input(UInt(DATA_WIDTH.W))
   val commit_ex = Input(Bool())
   val imm_ex = Input(UInt(DATA_WIDTH.W))
+  val dataStore_ex = Input(UInt(DATA_WIDTH.W))
 // following two Input are rf_wb_sel sinals
   val isLui_ex = Input(Bool())
   val isJump_ex = Input(Bool())
@@ -25,6 +26,7 @@ class EX_LS_IO extends Bundle {
   val isLoad_ex = Input(Bool())
   val isStore_ex = Input(Bool())
   val ctrlLSType_ex = Input(UInt(LS_TYPES.LS_TYPE_WIDTH.W))
+  val wD_ex = Input(UInt(DATA_WIDTH.W))
 
   val mem_ctl_ls = Flipped(new DataMemControl())
   val rf_wsel_ls = Flipped(new RfWselControl())
@@ -34,6 +36,7 @@ class EX_LS_IO extends Bundle {
   val pc_ls = Output(UInt(ADDR_WIDTH.W))
   val rdNum_ls = Output(UInt(REG_NUMS_LOG.W))
   val imm_ls = Output(UInt(DATA_WIDTH.W))
+  val dataStore_ls = Output(UInt(DATA_WIDTH.W))
 }
 
 class EX_LS extends Module {
@@ -50,6 +53,7 @@ class EX_LS extends Module {
   val rdNum_ls = RegInit(0.U(REG_NUMS_LOG.W))
   val imm_ls = RegInit(0.U(DATA_WIDTH.W))
   val isRegWrite_ls = RegInit(0.B)
+  val dataStore = RegInit(0.U(DATA_WIDTH.W))
   when(io.flush) {
     commit_ls := false.B
     resultC_ls := 0.U
@@ -63,6 +67,7 @@ class EX_LS extends Module {
     rdNum_ls := 0.U
     isRegWrite_ls := 0.U
     imm_ls := 0.U
+    dataStore := 0.U
   }
     .elsewhen(!io.stall) {
       commit_ls := io.commit_ex
@@ -77,12 +82,13 @@ class EX_LS extends Module {
       rdNum_ls := io.rdNum_ex
       isRegWrite_ls := io.isRegWrite_ls
       imm_ls := io.imm_ex
+      dataStore := io.dataStore_ex
     }
   io.commit_ls := commit_ls
   io.resultC_ls := resultC_ls
   io.pc_ls := pc_ls
   io.rf_wsel_ls.isJump := isJump_ls
-  io.rf_wsel_ls.isLoad := isLoad_ls
+  // io.rf_wsel_ls.isLoad := isLoad_ls
   io.rf_wsel_ls.isLui := isLui_ls
   io.mem_ctl_ls.isStore := isStore_ls
   io.mem_ctl_ls.isLoad := isLoad_ls
@@ -91,7 +97,7 @@ class EX_LS extends Module {
   io.rdNum_ls := rdNum_ls
   io.isRegWrite_ls := isRegWrite_ls
   io.imm_ls := imm_ls
-
+  io.dataStore_ls := dataStore
 }
 
 object myEX_LS extends App {
