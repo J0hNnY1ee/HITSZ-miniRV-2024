@@ -37,6 +37,7 @@ class EX_LS_IO extends Bundle {
   val rdNum_ls = Output(UInt(REG_NUMS_LOG.W))
   val imm_ls = Output(UInt(DATA_WIDTH.W))
   val dataStore_ls = Output(UInt(DATA_WIDTH.W))
+  val wD_ls = Output(UInt(DATA_WIDTH.W))
 }
 
 class EX_LS extends Module {
@@ -53,7 +54,8 @@ class EX_LS extends Module {
   val rdNum_ls = RegInit(0.U(REG_NUMS_LOG.W))
   val imm_ls = RegInit(0.U(DATA_WIDTH.W))
   val isRegWrite_ls = RegInit(0.B)
-  val dataStore = RegInit(0.U(DATA_WIDTH.W))
+  val dataStore_ls = RegInit(0.U(DATA_WIDTH.W))
+  val wD_ls = RegInit(0.U(DATA_WIDTH.W))
   when(io.flush) {
     commit_ls := false.B
     resultC_ls := 0.U
@@ -67,7 +69,8 @@ class EX_LS extends Module {
     rdNum_ls := 0.U
     isRegWrite_ls := 0.U
     imm_ls := 0.U
-    dataStore := 0.U
+    dataStore_ls := 0.U
+    wD_ls := 0.U
   }
     .elsewhen(!io.stall) {
       commit_ls := io.commit_ex
@@ -80,9 +83,10 @@ class EX_LS extends Module {
       isJump_ls := io.isJump_ex
       ctrlLSType_ls := io.ctrlLSType_ex
       rdNum_ls := io.rdNum_ex
-      isRegWrite_ls := io.isRegWrite_ls
+      isRegWrite_ls := io.isRegWrite_ex
       imm_ls := io.imm_ex
-      dataStore := io.dataStore_ex
+      dataStore_ls := io.dataStore_ex
+      wD_ls := io.wD_ex
     }
   io.commit_ls := commit_ls
   io.resultC_ls := resultC_ls
@@ -97,7 +101,8 @@ class EX_LS extends Module {
   io.rdNum_ls := rdNum_ls
   io.isRegWrite_ls := isRegWrite_ls
   io.imm_ls := imm_ls
-  io.dataStore_ls := dataStore
+  io.dataStore_ls := dataStore_ls
+  io.wD_ls := wD_ls
 }
 
 object myEX_LS extends App {

@@ -15,11 +15,14 @@ class LS_WB_IO extends Bundle {
   val isRegWrite_ls = Input(Bool())
   val wD_ls = Input(UInt(DATA_WIDTH.W))
   val commit_ls = Input(Bool())
+  val pc_ls = Input(UInt(ADDR_WIDTH.W)) // debug
 
   val rdNum_wb = Output(UInt(REG_NUMS_LOG.W))
   val isRegWrite_wb = Output(Bool())
   val commit_wb = Output(Bool())
   val wD_wb = Output(UInt(DATA_WIDTH.W))
+  // debug
+  val debug_pc_wb = Output(UInt(ADDR_WIDTH.W))
 }
 
 class LS_WB extends Module {
@@ -29,24 +32,26 @@ class LS_WB extends Module {
   val isRegWrite_wb = RegInit(0.B)
   val wD_wb = RegInit(0.U(DATA_WIDTH.W))
   val commit_wb = RegInit(0.U)
-
+  val debug_pc_wb = RegInit(0.U(ADDR_WIDTH.W))
   when(io.flush) {
     // pc_wb := 0.U
     rdNum_wb := 0.U
     isRegWrite_wb := 0.U
     commit_wb := 0.B
     wD_wb := 0.U
+    debug_pc_wb := 0.U
   }.elsewhen(!io.stall) {
     rdNum_wb := io.rdNum_ls
     isRegWrite_wb := io.isRegWrite_ls
     commit_wb := io.commit_ls
     wD_wb := io.wD_ls
+    debug_pc_wb := io.pc_ls
   }
   io.rdNum_wb := rdNum_wb
   io.isRegWrite_wb := isRegWrite_wb
   io.commit_wb := commit_wb
   io.wD_wb := wD_wb
-
+  io.debug_pc_wb := debug_pc_wb
 }
 object myLS_WB extends App {
   println(
